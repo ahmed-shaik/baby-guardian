@@ -64,9 +64,15 @@ generated_images/
 # =========================
 # Node (if you used frontend)
 # =========================
+# node_modules/
+# keep global ignore OFF for dist/build
+# but still ignore node_modules
+
 node_modules/
-dist/
-build/
+
+# allow dashboard build
+!dashboard/dist/
+!dashboard/dist/**
 
 # =========================
 # Secrets (CRITICAL)
