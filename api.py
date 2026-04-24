@@ -4,7 +4,19 @@ import os
 
 app = Flask(__name__, static_folder="dashboard/dist", static_url_path="")
 
-pipeline = PosePipeline()
+import threading
+
+pipeline = None
+pipeline_lock = threading.Lock()
+
+def get_pipeline():
+    global pipeline
+    if pipeline is None:
+        with pipeline_lock:
+            if pipeline is None:
+                print("🔥 Loading PosePipeline...")
+                pipeline = PosePipeline()
+    return pipeline
 
 # 🔥 GLOBAL STATE (for frontend sync)
 current_source = None
@@ -79,11 +91,12 @@ def analyze():
     if file.filename == "":
         return jsonify({"error": "Empty filename"}), 400
 
-    filepath = "temp.jpg"
+    import uuid
+    filepath = f"temp_{uuid.uuid4().hex}.jpg"
     file.save(filepath)
 
     try:
-        result = pipeline.analyze_image(filepath)
+        result = get_pipeline().analyze_image(filepath)
 
         response = {
             "frame_index": result.frame_index,
@@ -116,4 +129,6 @@ def analyze():
 # =========================
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
