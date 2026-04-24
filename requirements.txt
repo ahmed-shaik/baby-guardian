@@ -16,7 +16,12 @@ flask
 gunicorn
 opencv-python
 numpy
-ultralytics
-torch
 twilio
 python-dotenv
+
+# YOLO
+ultralytics==8.2.103
+
+# CPU torch (stable combo)
+torch==2.2.2+cpu
+torchvision==0.17.2+cpu
