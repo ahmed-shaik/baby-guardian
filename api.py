@@ -1,20 +1,38 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from app.pipeline import PosePipeline
 import os
 
-app = Flask(__name__)
+# 👇 IMPORTANT: point Flask to your built frontend
+app = Flask(__name__, static_folder="dashboard/dist", static_url_path="")
+
 pipeline = PosePipeline()
 
 
+# =========================
+# FRONTEND ROUTES (UI)
+# =========================
+
 @app.route("/")
-def home():
-    return jsonify({
-        "status": "running",
-        "message": "Baby Guardian API is live"
-    })
+def serve_index():
+    return send_from_directory(app.static_folder, "index.html")
 
 
-@app.route("/analyze", methods=["POST"])
+@app.route("/<path:path>")
+def serve_static(path):
+    file_path = os.path.join(app.static_folder, path)
+
+    if os.path.exists(file_path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        # React fallback (important for routing)
+        return send_from_directory(app.static_folder, "index.html")
+
+
+# =========================
+# API ROUTES
+# =========================
+
+@app.route("/api/analyze", methods=["POST"])
 def analyze():
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
@@ -24,14 +42,12 @@ def analyze():
     if file.filename == "":
         return jsonify({"error": "Empty filename"}), 400
 
-    # Save temp file
     filepath = "temp.jpg"
     file.save(filepath)
 
     try:
         result = pipeline.analyze_image(filepath)
 
-        # Convert safely to JSON
         response = {
             "frame_index": result.frame_index,
             "timestamp_ms": result.timestamp_ms,
@@ -57,6 +73,10 @@ def analyze():
         if os.path.exists(filepath):
             os.remove(filepath)
 
+
+# =========================
+# RUN (local only)
+# =========================
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
