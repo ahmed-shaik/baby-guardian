@@ -2,14 +2,12 @@ from flask import Flask, request, jsonify, send_from_directory
 from app.pipeline import PosePipeline
 import os
 
-# 👇 IMPORTANT: point Flask to your built frontend
 app = Flask(__name__, static_folder="dashboard/dist", static_url_path="")
 
 pipeline = PosePipeline()
 
-
 # =========================
-# FRONTEND ROUTES (UI)
+# FRONTEND ROUTES
 # =========================
 
 @app.route("/")
@@ -24,7 +22,6 @@ def serve_static(path):
     if os.path.exists(file_path):
         return send_from_directory(app.static_folder, path)
     else:
-        # React fallback (important for routing)
         return send_from_directory(app.static_folder, "index.html")
 
 
@@ -32,6 +29,27 @@ def serve_static(path):
 # API ROUTES
 # =========================
 
+# 🔥 FIX 1: Start Stream (your UI needs this)
+@app.route("/api/start-stream", methods=["POST", "GET"])
+def start_stream():
+    try:
+        data = request.get_json(silent=True) or {}
+        stream_url = data.get("url") or request.args.get("url")
+
+        if not stream_url:
+            return jsonify({"error": "No stream URL provided"}), 400
+
+        # For now: just acknowledge (you can integrate real streaming later)
+        return jsonify({
+            "status": "started",
+            "stream_url": stream_url
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# 🔥 FIX 2: Analyze Image
 @app.route("/api/analyze", methods=["POST"])
 def analyze():
     if "file" not in request.files:
@@ -74,8 +92,14 @@ def analyze():
             os.remove(filepath)
 
 
+# 🔥 Optional: Health check
+@app.route("/api/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok"})
+
+
 # =========================
-# RUN (local only)
+# RUN (LOCAL ONLY)
 # =========================
 
 if __name__ == "__main__":
