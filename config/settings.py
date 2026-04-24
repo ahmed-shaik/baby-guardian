@@ -92,8 +92,8 @@ class ObjectDetectionConfig:
     # "yolov8m.pt" uses the pretrained COCO model (auto-downloads on first run).
     # To use a custom model, set to e.g. "best.pt"
     # model_path: str = "best.pt"  # custom trained model
-    model_path: str = "yolov8m.pt"
-    # model_path: str = "yolov8n.pt"
+    # model_path: str = "yolov8m.pt"
+    model_path: str = "yolov8n.pt"
 
     # Minimum confidence threshold for detections.
     # Lower this if objects aren't being detected (0.35 is good for mAP~0.55 models)
