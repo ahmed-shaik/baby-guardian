@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: baby-guardian
+    env: python
+    plan: free
+    buildCommand: pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
+    startCommand: gunicorn api:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.13
