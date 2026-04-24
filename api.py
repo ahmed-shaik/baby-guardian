@@ -6,6 +6,11 @@ app = Flask(__name__, static_folder="dashboard/dist", static_url_path="")
 
 pipeline = PosePipeline()
 
+# 🔥 GLOBAL STATE (for frontend sync)
+current_source = None
+is_running = False
+
+
 # =========================
 # FRONTEND ROUTES
 # =========================
@@ -26,30 +31,44 @@ def serve_static(path):
 
 
 # =========================
-# API ROUTES
+# API ROUTES (IMPORTANT)
 # =========================
 
-# 🔥 FIX 1: Start Stream (your UI needs this)
-@app.route("/api/start-stream", methods=["POST", "GET"])
-def start_stream():
+# 🔥 REQUIRED: frontend calls this
+@app.route("/api/source", methods=["POST"])
+def set_source():
+    global current_source, is_running
+
+    data = request.get_json()
+
+    if not data or "source" not in data:
+        return jsonify({"ok": False, "error": "No source provided"}), 400
+
+    current_source = data["source"]
+
     try:
-        data = request.get_json(silent=True) or {}
-        stream_url = data.get("url") or request.args.get("url")
+        # 👉 You can later replace this with real streaming
+        is_running = True
 
-        if not stream_url:
-            return jsonify({"error": "No stream URL provided"}), 400
-
-        # For now: just acknowledge (you can integrate real streaming later)
         return jsonify({
-            "status": "started",
-            "stream_url": stream_url
+            "ok": True,
+            "source": current_source
         })
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
-# 🔥 FIX 2: Analyze Image
+# 🔥 REQUIRED: frontend calls this
+@app.route("/api/status", methods=["GET"])
+def get_status():
+    return jsonify({
+        "running": is_running,
+        "source": current_source
+    })
+
+
+# 🔥 Existing API
 @app.route("/api/analyze", methods=["POST"])
 def analyze():
     if "file" not in request.files:
@@ -90,12 +109,6 @@ def analyze():
     finally:
         if os.path.exists(filepath):
             os.remove(filepath)
-
-
-# 🔥 Optional: Health check
-@app.route("/api/health", methods=["GET"])
-def health():
-    return jsonify({"status": "ok"})
 
 
 # =========================
