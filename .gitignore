@@ -1,0 +1,85 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+
+# Virtual environment
+venv/
+.env/
+.env.*
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.swp
+
+# =========================
+# Models (VERY IMPORTANT)
+# =========================
+*.pt
+*.pth
+*.safetensors
+*.ckpt
+models/
+checkpoints/
+
+# =========================
+# ComfyUI / Stable Diffusion
+# =========================
+ComfyUI/models/
+ComfyUI/output/
+ComfyUI/input/
+ComfyUI/temp/
+
+# =========================
+# Kaggle / Colab temp files
+# =========================
+*.ipynb_checkpoints
+
+# =========================
+# Uploads / Generated files
+# =========================
+uploads/
+outputs/
+generated_images/
+
+# =========================
+# Node (if you used frontend)
+# =========================
+node_modules/
+dist/
+build/
+
+# =========================
+# Secrets (CRITICAL)
+# =========================
+.env
+.env.local
+config.json
+
+# =========================
+# Misc
+# =========================
+*.zip
+*.tar
+*.gz
+
+.claude
